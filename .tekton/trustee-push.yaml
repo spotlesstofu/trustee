@@ -18,11 +18,13 @@ metadata:
 spec:
   params:
   - name: dockerfile
-    value: Dockerfile
+    value: kbs/docker/Dockerfile.rhel-ubi
   - name: git-url
     value: '{{source_url}}'
   - name: output-image
     value: quay.io/redhat-user-workloads/ose-osc-tenant/trustee/trustee:{{revision}}
+  - name: path-context
+    value: .
   - name: revision
     value: '{{revision}}'
   pipelineSpec:
