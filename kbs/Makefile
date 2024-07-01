@@ -2,7 +2,14 @@ AS_TYPE ?= coco-as
 HTTPS_CRYPTO ?= rustls
 POLICY_ENGINE ?=
 
-CLI_FEATURES ?= default
+ARCH := $(shell uname -m)
+# Check if ARCH is supported, otehrwise return error
+ifeq ($(filter $(ARCH),x86_64 s390x),)
+	$(error "Unsupported architecture: $(ARCH)")
+endif
+
+CLI_FEATURES ?=
+ATTESTER ?=
 
 COCO_AS_INTEGRATION_TYPE ?= builtin
 
@@ -12,6 +19,14 @@ ifeq ($(AS_TYPE), coco-as)
   AS_FEATURE = $(AS_TYPE)-$(COCO_AS_INTEGRATION_TYPE)
 else
   AS_FEATURE = $(AS_TYPE)
+endif
+
+ifndef CLI_FEATURES
+  ifdef ATTESTER
+    CLI_FEATURES = "sample_only,$(ATTESTER)"
+  else
+    CLI_FEATURES += "sample_only,all-attesters"
+  endif
 endif
 
 build: background-check-kbs
@@ -34,12 +49,12 @@ passport-resource-kbs:
 cli:
 	cargo build -p kbs-client --locked --release --no-default-features --features $(CLI_FEATURES)
 
-.PHONY: cli-static-x86_64-linux
-cli-static-x86_64-linux:
+.PHONY: cli-static-linux
+cli-static-linux:
 	cargo build \
       -p kbs-client \
-      --target=x86_64-unknown-linux-gnu \
-      --config "target.x86_64-unknown-linux-gnu.rustflags = '-C target-feature=+crt-static'" \
+      --target=$(ARCH)-unknown-linux-gnu \
+      --config "target.$(ARCH)-unknown-linux-gnu.rustflags = '-C target-feature=+crt-static'" \
       --locked \
       --release \
       --no-default-features \

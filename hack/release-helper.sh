@@ -6,15 +6,19 @@ declare -g gh_username
 declare -g gh_token
 declare -g release_candidate_sha
 declare -g release_tag
+
+# Output naming convention along with release guide can be found in release-guide.md
 declare -A staged_to_release=(
     ["staged-images/kbs"]="key-broker-service"
     ["staged-images/kbs-grpc-as"]="key-broker-service"
+    ["staged-images/kbs-ita-as"]="key-broker-service"
     ["staged-images/rvps"]="reference-value-provider-service"
     ["staged-images/coco-as-grpc"]="attestation-service"
     ["staged-images/coco-as-restful"]="attestation-service"
 )
 declare -A staged_to_release_tag_prefix=(
     ["staged-images/kbs"]="built-in-as-"
+    ["staged-images/kbs-ita-as"]="ita-as-"
     ["staged-images/coco-as-restful"]="rest-"
 )
 
@@ -81,9 +85,6 @@ function tag_and_push_packages() {
     for staged_pkg_name in ${!staged_to_release[@]}; do
         release_pkg_name=${staged_to_release[${staged_pkg_name}]}
 
-        # pull the staged package
-        docker pull ${ghcr_repo}/${staged_pkg_name}:${release_candidate_sha}
-
         # set tag prefix (if needed)
         release_tag_prefix=
         if [[ -v staged_to_release_tag_prefix[${staged_pkg_name}] ]]; then
@@ -91,11 +92,23 @@ function tag_and_push_packages() {
         fi
         release_tag_full=${release_tag_prefix}${release_tag}
 
-        # tag it
-        docker tag ${ghcr_repo}/${staged_pkg_name}:${release_candidate_sha} ${ghcr_repo}/${release_pkg_name}:${release_tag_full}
+        for arch in x86_64 s390x; do
+            # pull the staged package
+            docker pull ${ghcr_repo}/${staged_pkg_name}:${release_candidate_sha}-${arch}
 
-        # push it (i.e. release it)
-        docker push ${ghcr_repo}/${release_pkg_name}:${release_tag_full}
+            # tag it
+            docker tag ${ghcr_repo}/${staged_pkg_name}:${release_candidate_sha}-${arch} \
+                ${ghcr_repo}/${release_pkg_name}:${release_tag_full}-${arch}
+
+            # push it (i.e. release it)
+            docker push ${ghcr_repo}/${release_pkg_name}:${release_tag_full}-${arch}
+        done
+
+        # Publish the multi-arch manifest
+        docker manifest create ${ghcr_repo}/${release_pkg_name}:${release_tag_full} \
+            --amend ${ghcr_repo}/${release_pkg_name}:${release_tag_full}-x86_64 \
+            --amend ${ghcr_repo}/${release_pkg_name}:${release_tag_full}-s390x
+        docker manifest push ${ghcr_repo}/${release_pkg_name}:${release_tag_full}
     done
 }
 

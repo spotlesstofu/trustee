@@ -5,10 +5,12 @@
 use super::Attest;
 use anyhow::*;
 use async_trait::async_trait;
+use base64::{engine::general_purpose::STANDARD, Engine};
 use jsonwebtoken::{decode, decode_header, jwk, Algorithm, DecodingKey, Validation};
 use kbs_types::{Attestation, Tee};
 use reqwest::header::{ACCEPT, CONTENT_TYPE};
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 use std::fs::File;
 use std::io::BufReader;
 use std::str::FromStr;
@@ -23,6 +25,7 @@ struct IntelTrustAuthorityTeeEvidence {
 #[derive(Serialize, Debug)]
 struct AttestReqData {
     quote: String,
+    runtime_data: String,
 }
 
 #[derive(Deserialize, Debug)]
@@ -33,6 +36,11 @@ struct AttestRespData {
 #[derive(Deserialize, Debug)]
 struct Claims {
     policy_ids_unmatched: Option<Vec<serde_json::Value>>,
+}
+
+#[derive(Deserialize, Debug)]
+struct ErrorResponse {
+    error: String,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -50,7 +58,7 @@ pub struct IntelTrustAuthority {
 
 #[async_trait]
 impl Attest for IntelTrustAuthority {
-    async fn verify(&self, tee: Tee, _nonce: &str, attestation: &str) -> Result<String> {
+    async fn verify(&self, tee: Tee, nonce: &str, attestation: &str) -> Result<String> {
         if tee != Tee::Tdx && tee != Tee::Sgx {
             bail!("Intel Trust Authority: TEE {tee:?} is not supported.");
         }
@@ -61,9 +69,16 @@ impl Attest for IntelTrustAuthority {
             serde_json::from_str::<IntelTrustAuthorityTeeEvidence>(&attestation.tee_evidence)
                 .map_err(|e| anyhow!("Deserialize supported TEE Evidence failed: {:?}", e))?;
 
+        let runtime_data = json!({
+            "tee-pubkey": attestation.tee_pubkey,
+            "nonce": nonce,
+        })
+        .to_string();
+
         // construct attest request data
         let req_data = AttestReqData {
             quote: evidence.quote,
+            runtime_data: STANDARD.encode(runtime_data),
         };
 
         let attest_req_body = serde_json::to_string(&req_data)
@@ -82,10 +97,16 @@ impl Attest for IntelTrustAuthority {
             .await
             .map_err(|e| anyhow!("Post attestation request failed: {:?}", e))?;
 
-        if resp.status() != reqwest::StatusCode::OK {
+        let status = resp.status();
+        if status != reqwest::StatusCode::OK {
+            let body = resp
+                .json::<ErrorResponse>()
+                .await
+                .map_err(|e| anyhow!("Deserialize error response failed: {:?}", e))?;
             bail!(
-                "Attestation request failed: respone status={}",
-                resp.status()
+                "Attestation request failed: response status={}, message={}",
+                status,
+                body.error
             );
         }
 
@@ -93,7 +114,7 @@ impl Attest for IntelTrustAuthority {
         let resp_data = resp
             .json::<AttestRespData>()
             .await
-            .map_err(|e| anyhow!("Deserialize attestation respone failed: {:?}", e))?;
+            .map_err(|e| anyhow!("Deserialize attestation response failed: {:?}", e))?;
         let header = decode_header(&resp_data.token)
             .map_err(|e| anyhow!("Decode token header failed: {:?}", e))?;
         let kid = header.kid.ok_or(anyhow!("Token missing kid"))?;
