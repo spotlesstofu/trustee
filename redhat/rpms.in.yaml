@@ -1,0 +1,17 @@
+contentOrigin:
+  repofiles:
+    - /etc/yum.repos.d/ubi.repo
+    - /etc/yum.repos.d/redhat.repo
+packages:
+  - cargo
+  - pkg-config
+  - perl-FindBin
+  - openssl-devel
+  - perl-lib
+  - perl-IPC-Cmd
+  - perl-File-Compare
+  - perl-File-Copy
+  - clang-devel
+  - tpm2-tss-devel
+  - protobuf-compiler
+  - meson
