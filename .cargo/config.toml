@@ -1,0 +1,40 @@
+[source.crates-io]
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/chendave/rust-apiclient?branch=token"]
+git = "https://github.com/chendave/rust-apiclient"
+branch = "token"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/confidential-containers/guest-components.git?rev=df60725afe0ba452a25a740cf460c2855442c49a"]
+git = "https://github.com/confidential-containers/guest-components.git"
+rev = "df60725afe0ba452a25a740cf460c2855442c49a"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/intel/SGXDataCenterAttestationPrimitives?tag=DCAP_1.20"]
+git = "https://github.com/intel/SGXDataCenterAttestationPrimitives"
+tag = "DCAP_1.20"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/intel/SGXDataCenterAttestationPrimitives?tag=DCAP_1.21"]
+git = "https://github.com/intel/SGXDataCenterAttestationPrimitives"
+tag = "DCAP_1.21"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/occlum/occlum?tag=v0.29.7"]
+git = "https://github.com/occlum/occlum"
+tag = "v0.29.7"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/openanolis/csv-rs?rev=b74aa8c"]
+git = "https://github.com/openanolis/csv-rs"
+rev = "b74aa8c"
+replace-with = "vendored-sources"
+
+[source."git+https://github.com/veraison/rust-ear?rev=43f7f480d09ea2ebc03137af8fbcd70fe3df3468"]
+git = "https://github.com/veraison/rust-ear"
+rev = "43f7f480d09ea2ebc03137af8fbcd70fe3df3468"
+replace-with = "vendored-sources"
+
+[source.vendored-sources]
+directory = "vendor"
