@@ -106,9 +106,9 @@ Build and run container image
 ```shell
 git clone https://github.com/confidential-containers/trustee
 cd trustee
-docker build -t coco-as:grpc -f attestation-service/Dockerfile.as-grpc .
+docker build -t coco-as:grpc -f attestation-service/docker/as-grpc/Dockerfile .
 ```
 
 ### API
 
-The API of gRPC CoCo-AS is defined in the [proto](../protos/attestation.proto).
+The API of gRPC CoCo-AS is defined in the [proto](../../protos/attestation.proto).
