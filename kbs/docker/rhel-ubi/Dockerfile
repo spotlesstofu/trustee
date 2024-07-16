@@ -20,7 +20,7 @@ dnf -y --setopt=install_weak_deps=0 install \
 # Build.
 WORKDIR /usr/src/kbs
 COPY . .
-ARG KBS_FEATURES=coco-as-builtin,rustls,resource,opa
+ARG KBS_FEATURES=coco-as-builtin,resource,opa,openssl
 RUN \
 # Build sgx_dcap_quoteverify stub.
 pushd sgx_dcap_quoteverify_stubs && \
