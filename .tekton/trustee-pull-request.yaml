@@ -194,6 +194,8 @@ spec:
         value: $(params.prefetch-input)
       - name: dev-package-managers
         value: "true"
+      - name: caTrustConfigMapName
+        value: subscription-manager-rhsm-certificates
       runAfter:
       - clone-repository
       taskRef:
