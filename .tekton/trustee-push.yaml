@@ -29,21 +29,18 @@ spec:
     value: '{{revision}}'
   - name: build-source-image
     value: "true"
+  - name: enable-amd64-build
+    value: "true"
+  - name: enable-arm64-build
+    value: "false"
+  - name: enable-ppc64le-build
+    value: "false"
+  - name: enable-s390x-build
+    value: "true"
   pipelineRef:
-    name: trustee-build-pipeline
+    name: multi-arch-build-pipeline
   taskRunTemplate: {}
   workspaces:
-  - name: workspace
-    volumeClaimTemplate:
-      metadata:
-        creationTimestamp: null
-      spec:
-        accessModes:
-        - ReadWriteOnce
-        resources:
-          requests:
-            storage: 1Gi
-      status: {}
   - name: git-auth
     secret:
       secretName: '{{ git_auth_secret }}'
