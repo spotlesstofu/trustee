@@ -25,6 +25,8 @@ spec:
     value: quay.io/redhat-user-workloads/ose-osc-tenant/trustee/trustee-intel:{{revision}}
   - name: dockerfile
     value: kbs/docker/rhel-ubi/Dockerfile.tdx
+  - name: build-source-image
+    value: "true"
   pipelineSpec:
     finally:
     - name: show-sbom

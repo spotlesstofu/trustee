@@ -28,6 +28,8 @@ spec:
     value: 5d
   - name: dockerfile
     value: kbs/docker/rhel-ubi/Dockerfile.tdx
+  - name: build-source-image
+    value: "true"
   pipelineSpec:
     finally:
     - name: show-sbom
