@@ -1,4 +1,4 @@
-FROM quay.io/redhat-pending/confidential-compute-attestation-tech-preview----trustee-rhel9
+FROM quay.io/redhat-user-workloads/ose-osc-tenant/trustee/trustee:0a91f088edf34efecabb9263605eeb736f4186d4
 
 # Install runtime dependencies from Intel repo.
 WORKDIR /root
