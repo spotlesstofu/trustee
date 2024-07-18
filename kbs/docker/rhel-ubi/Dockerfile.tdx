@@ -1,4 +1,4 @@
-FROM quay.io/redhat-pending/confidential-compute-attestation-tech-preview----trustee-rhel9
+FROM quay.io/redhat-user-workloads/ose-osc-tenant/trustee/trustee:0a91f088edf34efecabb9263605eeb736f4186d4
 
 # Install runtime dependencies from Intel repo.
 WORKDIR /root
@@ -9,3 +9,23 @@ dnf -y install --nogpgcheck --setopt=install_weak_deps=0 --repofrompath "sgx,fil
 libsgx-dcap-default-qpl libsgx-dcap-quote-verify && \
 rm -rf /root/sgx_rpm_local_repo && \
 dnf clean all
+
+# Declare build-time variables.
+ARG NAME="trustee-intel"
+ARG DESCRIPTION="The Trustee server, with Intel binaries."
+
+# Red Hat labels.
+LABEL com.redhat.component=$NAME
+LABEL description=$DESCRIPTION
+LABEL io.k8s.description=$DESCRIPTION
+LABEL io.k8s.display-name=$NAME
+LABEL name=$NAME
+LABEL summary=$DESCRIPTION
+LABEL distribution-scope=public
+LABEL release="1"
+LABEL url="https://access.redhat.com/"
+LABEL vendor="Red Hat, Inc."
+LABEL version="1"
+LABEL maintainer="Red Hat"
+# Reset labels inherited from base image.
+LABEL io.openshift.tags=""

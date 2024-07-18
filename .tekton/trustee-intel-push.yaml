@@ -7,7 +7,7 @@ metadata:
     build.appstudio.redhat.com/target_branch: '{{target_branch}}'
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "push" && target_branch
-      == "main"
+      == "main" && "kbs/docker/rhel-ubi/Dockerfile.tdx".pathChanged()
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: trustee
@@ -25,6 +25,8 @@ spec:
     value: quay.io/redhat-user-workloads/ose-osc-tenant/trustee/trustee-intel:{{revision}}
   - name: dockerfile
     value: kbs/docker/rhel-ubi/Dockerfile.tdx
+  - name: build-source-image
+    value: "true"
   pipelineSpec:
     finally:
     - name: show-sbom
