@@ -3,6 +3,7 @@ use std::env;
 use log::debug;
 
 mod cli;
+mod keys_certs;
 
 #[cfg(feature = "aliases")]
 mod aliases;
