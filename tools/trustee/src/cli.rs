@@ -5,7 +5,7 @@ use clap::{error::Error, Parser};
 use dirs::home_dir;
 use log::info;
 
-use crate::keys_certs::new_auth_key_pair;
+use crate::keys_certs::{new_auth_key_pair, new_https_certificate, new_https_key_pair};
 use kbs::{ApiServer, KbsConfig};
 
 fn trustee_keygen(trustee_home_dir: &Path) -> Result<(PathBuf, PathBuf)> {
@@ -32,6 +32,17 @@ async fn trustee_run(config_file: Option<PathBuf>, trustee_home_dir: &Path) -> R
             }
         };
         config.admin.auth_public_key = Some(public_path);
+    }
+
+    if !config.http_server.insecure_http {
+        if config.http_server.private_key.is_none() {
+            config.http_server.private_key = Some(new_https_key_pair(trustee_home_dir)?.0);
+        }
+        if config.http_server.certificate.is_none() {
+            let private_key = config.http_server.private_key.as_ref().unwrap();
+            config.http_server.certificate =
+                Some(new_https_certificate(trustee_home_dir, private_key)?);
+        }
     }
 
     let api_server = ApiServer::new(config).await?;
