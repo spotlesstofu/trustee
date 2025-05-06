@@ -1,6 +1,7 @@
 use log::debug;
 
 mod cli;
+mod keys_certs;
 
 #[tokio::main]
 async fn main() {
