@@ -1,0 +1,14 @@
+{
+    "servers": {
+        "trustee-policy-mcp": {
+            "type": "stdio",
+            "command": "uv",
+            "args": [
+                "--directory",
+                "/var/home/tofu/code/trustee-policy-mcp",
+                "run",
+                "server.py"
+            ]
+        }
+    }
+}

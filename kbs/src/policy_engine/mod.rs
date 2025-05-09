@@ -57,7 +57,7 @@ impl Default for PolicyEngineConfig {
 
 /// Policy Engine
 #[derive(Clone)]
-pub(crate) struct PolicyEngine(pub Arc<Mutex<dyn PolicyEngineInterface>>);
+pub struct PolicyEngine(pub Arc<Mutex<dyn PolicyEngineInterface>>);
 
 impl PolicyEngine {
     /// Create and initialize PolicyEngine

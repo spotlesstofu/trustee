@@ -6,7 +6,10 @@ use dirs::home_dir;
 use log::{info, warn};
 
 use crate::keys_certs::{new_auth_key_pair, new_https_certificate, new_https_key_pair};
-use kbs::{ApiServer, KbsConfig};
+use kbs::{
+    policy_engine::{PolicyEngine, PolicyEngineConfig},
+    ApiServer, KbsConfig,
+};
 
 fn trustee_keygen(trustee_home_dir: &Path) -> Result<(PathBuf, PathBuf)> {
     let (private, public) = new_auth_key_pair(trustee_home_dir)?;
@@ -71,6 +74,31 @@ async fn trustee_run(
     Ok(())
 }
 
+async fn trustee_validate_policy(
+    policy_path: &Path,
+    request_path: Option<&str>,
+    input_claims: Option<&str>,
+) {
+    let config = PolicyEngineConfig {
+        policy_path: policy_path.to_path_buf(),
+    };
+    let engine = PolicyEngine::new(&config).await.unwrap();
+    if request_path.is_some() && input_claims.is_some() {
+        let result = engine
+            .evaluate(request_path.unwrap(), input_claims.unwrap())
+            .await;
+        match result {
+            Ok(pass) => match pass {
+                true => println!("pass"),
+                false => println!("fail"),
+            },
+            Err(e) => {
+                println!("{}", e)
+            }
+        };
+    }
+}
+
 #[derive(Debug, Parser)]
 enum Commands {
     /// Generate a new key pair
@@ -88,6 +116,14 @@ enum Commands {
         /// If neither this nor a policy file is provided, the default policy is to deny all.
         #[arg(long)]
         allow_all: bool,
+    },
+    ValidatePolicy {
+        #[arg(long, value_name = "PATH")]
+        policy: PathBuf,
+        #[arg(long)]
+        request_path: Option<String>,
+        #[arg(long)]
+        input_claims: Option<String>,
     },
 }
 
@@ -124,6 +160,18 @@ pub async fn cli_default() -> Result<(), Error> {
             trustee_run(config_file, allow_all, &trustee_home_dir)
                 .await
                 .unwrap();
+        }
+        Commands::ValidatePolicy {
+            policy,
+            request_path,
+            input_claims,
+        } => {
+            trustee_validate_policy(
+                policy.as_path(),
+                request_path.as_deref(),
+                input_claims.as_deref(),
+            )
+            .await;
         }
     };
 

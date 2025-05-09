@@ -1,0 +1,400 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'kbs'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=kbs"
+                ],
+                "filter": {
+                    "name": "kbs",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'kbs'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=kbs",
+                    "--package=kbs"
+                ],
+                "filter": {
+                    "name": "kbs",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'kbs'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=kbs",
+                    "--package=kbs"
+                ],
+                "filter": {
+                    "name": "kbs",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'reference_value_provider_service'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=reference-value-provider-service"
+                ],
+                "filter": {
+                    "name": "reference_value_provider_service",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'rvps'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=rvps",
+                    "--package=reference-value-provider-service"
+                ],
+                "filter": {
+                    "name": "rvps",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'rvps'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=rvps",
+                    "--package=reference-value-provider-service"
+                ],
+                "filter": {
+                    "name": "rvps",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'rvps-tool'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=rvps-tool",
+                    "--package=reference-value-provider-service"
+                ],
+                "filter": {
+                    "name": "rvps-tool",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'rvps-tool'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=rvps-tool",
+                    "--package=reference-value-provider-service"
+                ],
+                "filter": {
+                    "name": "rvps-tool",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'attestation_service'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=attestation-service"
+                ],
+                "filter": {
+                    "name": "attestation_service",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'grpc-as'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=grpc-as",
+                    "--package=attestation-service"
+                ],
+                "filter": {
+                    "name": "grpc-as",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'grpc-as'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=grpc-as",
+                    "--package=attestation-service"
+                ],
+                "filter": {
+                    "name": "grpc-as",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'restful-as'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=restful-as",
+                    "--package=attestation-service"
+                ],
+                "filter": {
+                    "name": "restful-as",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'restful-as'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=restful-as",
+                    "--package=attestation-service"
+                ],
+                "filter": {
+                    "name": "restful-as",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'verifier'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=verifier"
+                ],
+                "filter": {
+                    "name": "verifier",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'kbs_client'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=kbs-client"
+                ],
+                "filter": {
+                    "name": "kbs_client",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'kbs-client'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=kbs-client",
+                    "--package=kbs-client"
+                ],
+                "filter": {
+                    "name": "kbs-client",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'kbs-client'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=kbs-client",
+                    "--package=kbs-client"
+                ],
+                "filter": {
+                    "name": "kbs-client",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in library 'integration_tests'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib",
+                    "--package=integration-tests"
+                ],
+                "filter": {
+                    "name": "integration_tests",
+                    "kind": "lib"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug integration test 'get_resource'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--test=get_resource",
+                    "--package=integration-tests"
+                ],
+                "filter": {
+                    "name": "get_resource",
+                    "kind": "test"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug executable 'trustee'",
+            "cargo": {
+                "args": [
+                    "build",
+                    "--bin=trustee",
+                    "--package=trustee"
+                ],
+                "filter": {
+                    "name": "trustee",
+                    "kind": "bin"
+                }
+            },
+            "args": ["run"],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug unit tests in executable 'trustee'",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--bin=trustee",
+                    "--package=trustee"
+                ],
+                "filter": {
+                    "name": "trustee",
+                    "kind": "bin"
+                }
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
