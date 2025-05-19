@@ -1,5 +1,3 @@
-use std::env;
-
 use log::debug;
 
 mod cli;
@@ -23,15 +21,15 @@ async fn main() {
         }
     }
 
-    let cli_error = match cli::cli_default().await {
-        Ok(_) => return,
-        Err(e) => e,
-    };
-
     #[cfg(feature = "plugins")]
-    if env::args().count() > 1 {
-        plugins::exec();
+    match std::env::args().nth(1) {
+        Some(command) => {
+            if !<cli::Commands as clap::Subcommand>::has_subcommand(&command) {
+                plugins::exec();
+            }
+        }
+        None => {}
     }
 
-    cli_error.exit()
+    cli::cli_default().await.unwrap();
 }
