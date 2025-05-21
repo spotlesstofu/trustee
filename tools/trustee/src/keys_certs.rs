@@ -7,9 +7,9 @@ use openssl::pkey::{PKey, Private};
 use openssl::rsa::Rsa;
 use openssl::x509::{X509NameBuilder, X509};
 
-/// Write `contents` to `path`. Panic if `path` already exists.
+/// Write `contents` to `path`. Error if `path` already exists.
 fn safe_write(path: &Path, contents: Vec<u8>) -> Result<()> {
-    if path.exists() {
+    if path.try_exists()? {
         bail!("refusing to overwrite file: {:?}", path);
     } else {
         std::fs::write(&path, contents)?;
@@ -47,7 +47,7 @@ pub(crate) fn write_new_auth_key_pair(private_path: &Path, public_path: &Path) -
 pub(crate) fn ensure_auth_key_pair(home_dir: &Path) -> Result<(PathBuf, PathBuf)> {
     let (private_path, public_path) = get_key_paths(home_dir, "auth_key");
 
-    if !private_path.exists() {
+    if !private_path.try_exists()? {
         write_new_auth_key_pair(&private_path, &public_path)?;
     }
 
@@ -61,7 +61,7 @@ pub(crate) fn ensure_auth_key_pair(home_dir: &Path) -> Result<(PathBuf, PathBuf)
 pub(crate) fn ensure_https_key_pair(home_dir: &Path) -> Result<(PathBuf, PathBuf)> {
     let (private_path, public_path) = get_key_paths(home_dir, "https_key");
 
-    if !private_path.exists() {
+    if !private_path.try_exists()? {
         let rsa = Rsa::generate(2048)?;
         let private_key = PKey::from_rsa(rsa)?;
 
@@ -116,7 +116,7 @@ fn write_new_https_cert(certificate_path: &Path, private_path: &Path) -> Result<
 pub(crate) fn ensure_https_cert(home_dir: &Path, private_path: &Path) -> Result<PathBuf> {
     let certificate_path = home_dir.join("https_cert.pem");
 
-    if !certificate_path.exists() {
+    if !certificate_path.try_exists()? {
         write_new_https_cert(&certificate_path, private_path)?;
     }
 

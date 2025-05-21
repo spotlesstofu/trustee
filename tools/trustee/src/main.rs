@@ -31,5 +31,9 @@ async fn main() {
         None => {}
     }
 
-    cli::cli_default().await.unwrap();
+    
+    if let Err(e) = cli::cli_default().await {
+        eprintln!("Error: {}", e);
+        std::process::exit(1);
+    }
 }
