@@ -7,6 +7,7 @@ use openssl::pkey::{PKey, Private};
 use openssl::rsa::Rsa;
 use openssl::x509::{X509NameBuilder, X509};
 
+/// Write `contents` to `path`. Panic if `path` already exists.
 fn safe_write(path: &Path, contents: Vec<u8>) -> Result<()> {
     if path.exists() {
         bail!("refusing to overwrite file: {:?}", path);
@@ -16,48 +17,67 @@ fn safe_write(path: &Path, contents: Vec<u8>) -> Result<()> {
     }
 }
 
-/// Writes the private and public keys to separate PEM files.
-/// `path` is the base path where the keys will be saved.
-/// Returns the paths to the private and public key.
-fn write_pem(base_path: &Path, private_key: &PKey<Private>) -> Result<(PathBuf, PathBuf)> {
-    let private_path = base_path.with_extension("pem");
+fn get_key_paths(base_dir: &Path, key_name: &str) -> (PathBuf, PathBuf) {
+    let private_path = base_dir.join(key_name);
+    let public_path = private_path.with_extension("pub");
+    (private_path, public_path)
+}
+
+/// Write a key to separate files: one for private, one for public.
+fn write_pem(private_path: &Path, public_path: &Path, private_key: &PKey<Private>) -> Result<()> {
     let private_pem = private_key.private_key_to_pem_pkcs8()?;
     safe_write(&private_path, private_pem)?;
 
-    let public_path = base_path.with_extension("pub");
     let public_pem = private_key.public_key_to_pem()?;
     safe_write(&public_path, public_pem)?;
+
+    Ok(())
+}
+
+/// Generate a new key for authentication and write to the given file paths.
+pub(crate) fn write_new_auth_key_pair(private_path: &Path, public_path: &Path) -> Result<()> {
+    let private_key = PKey::generate_ed25519()?;
+    write_pem(&private_path, &public_path, &private_key)
+}
+
+/// Ensure a key pair for authentication exists in the given home directory.
+///
+/// Create the key files if they don't exist.
+/// Return the path to the private and public keys.
+pub(crate) fn ensure_auth_key_pair(home_dir: &Path) -> Result<(PathBuf, PathBuf)> {
+    let (private_path, public_path) = get_key_paths(home_dir, "auth_key");
+
+    if !private_path.exists() {
+        write_new_auth_key_pair(&private_path, &public_path)?;
+    }
 
     Ok((private_path, public_path))
 }
 
-/// Creates a key pair and writes to separate files.
-pub fn new_auth_key_pair(base_path: &Path) -> Result<(PathBuf, PathBuf)> {
-    let private_key = PKey::generate_ed25519()?;
-    write_pem(base_path, &private_key)
+/// Ensure a key pair for HTTPS exists in the given home directory.
+///
+/// Create the key files if they don't exist.
+/// Return the path to the private and public keys.
+pub(crate) fn ensure_https_key_pair(home_dir: &Path) -> Result<(PathBuf, PathBuf)> {
+    let (private_path, public_path) = get_key_paths(home_dir, "https_key");
+
+    if !private_path.exists() {
+        let rsa = Rsa::generate(2048)?;
+        let private_key = PKey::from_rsa(rsa)?;
+
+        write_pem(&private_path, &public_path, &private_key)?;
+    }
+
+    Ok((private_path, public_path))
 }
 
-/// Generates an HTTPS private key.
-/// `path` is the directory where the key will be stored.
-/// Returns the path to the private key.
-pub fn new_https_key_pair(base_path: &Path) -> Result<(PathBuf, PathBuf)> {
-    // Generate RSA private key
-    let rsa = Rsa::generate(2048)?;
-    let private_key = PKey::from_rsa(rsa)?;
-
-    // Write private key to file
-    let path = base_path.join("https_key");
-    write_pem(path.as_path(), &private_key)
-}
-
-/// Generates a self-signed HTTPS certificate.
-/// `path` is the directory where the certificate will be stored.
-/// `private_key` is the private key used to sign the certificate.
-/// Returns the path to the certificate.
-pub fn new_https_certificate(path: &Path, private_key: &PathBuf) -> Result<PathBuf> {
+/// Generate a new certificate for HTTPS and write it to the given path.
+///
+/// Use the given private key to sign the certificate.
+fn write_new_https_cert(certificate_path: &Path, private_path: &Path) -> Result<()> {
     // Load the private key from the provided path
     let private_key = {
-        let private_key_data = std::fs::read(private_key)?;
+        let private_key_data = std::fs::read(private_path)?;
         PKey::private_key_from_pem(&private_key_data)?
     };
 
@@ -85,8 +105,20 @@ pub fn new_https_certificate(path: &Path, private_key: &PathBuf) -> Result<PathB
     };
 
     // Write certificate to file
-    let certificate_path = path.join("https_cert.pem");
-    std::fs::write(&certificate_path, certificate.to_pem()?)?;
+    safe_write(&certificate_path, certificate.to_pem()?)
+}
+
+/// Ensure a HTTPS certificate exists in the given home directory.
+///
+/// Create a self-signed certificate if it doesn't exist.
+///
+/// Returns the path to the certificate.
+pub(crate) fn ensure_https_cert(home_dir: &Path, private_path: &Path) -> Result<PathBuf> {
+    let certificate_path = home_dir.join("https_cert.pem");
+
+    if !certificate_path.exists() {
+        write_new_https_cert(&certificate_path, private_path)?;
+    }
 
     Ok(certificate_path)
 }
