@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use anyhow::Result;
 use clap::Parser;
 use dirs::home_dir;
-use log::{info, warn};
+use log::{debug, info, warn};
 use nix::unistd::Uid;
 
 use crate::keys_certs::{
@@ -46,8 +46,25 @@ fn get_config(
         CoCoASBuiltIn(mut as_config) => {
             as_config.work_dir = replace_base_dir(as_config.work_dir.as_path(), trustee_home_dir);
             config.attestation_service.attestation_service = CoCoASBuiltIn(as_config);
+
+            as_config.rvps_config.storage = AttestationServiceConfig::CoCoASBuiltIn(Config {
+                work_dir: replace_base_dir(as_config.work_dir.as_path(), trustee_home_dir),
+                rvps_config: BuiltIn(Config {
+                    storage: LocalFs(Config { file_path: "/opt/confidential-containers/attestation-service/reference_values" })
+                }),
+                attestation_token_broker: Ear(Configuration { duration_min: 5, issuer_name: "CoCo-Attestation-Service", developer_name: "https://confidentialcontainers.org", build_name: "attestation-service 0.1.0", profile_name: "tag:github.com,2024:confidential-containers/Trustee", signer: None, policy_dir: "/opt/confidential-containers/attestation-service/token/ear/policies" }),
+                timeout: 5
+            });
         }
         _ => {}
+    }
+
+    match config.attestation_service.attestation_token_broker {
+        AttestationTokenBrokerConfig::Ear(mut ear_config) => {
+            ear_config.policy_dir = replace_base_dir(ear_config.policy_dir.as_path(), trustee_home_dir);
+            config.attestation_service.attestation_token_broker = AttestationTokenBrokerConfig::Ear(ear_config);
+        }
+        _ => {} 
     }
 
     if config.admin.auth_public_key.is_none() {
@@ -85,6 +102,7 @@ fn get_config(
         )?;
     }
 
+    debug!("Config: {:?}", config);
     Ok(config)
 }
 
