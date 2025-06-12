@@ -42,29 +42,23 @@ fn get_config(
     config.policy_engine.policy_path =
         replace_base_dir(config.policy_engine.policy_path.as_path(), trustee_home_dir);
 
-    match config.attestation_service.attestation_service {
-        CoCoASBuiltIn(mut as_config) => {
+    match &mut config.attestation_service.attestation_service {
+        CoCoASBuiltIn(as_config) => {
             as_config.work_dir = replace_base_dir(as_config.work_dir.as_path(), trustee_home_dir);
-            config.attestation_service.attestation_service = CoCoASBuiltIn(as_config);
+            
+            // Handle RVPS config paths
+            if let attestation_service::rvps::RvpsConfig::BuiltIn(rvps_config) = &mut as_config.rvps_config {
+                if let reference_value_provider_service::storage::ReferenceValueStorageConfig::LocalFs(local_fs_config) = &mut rvps_config.storage {
+                    local_fs_config.file_path = replace_base_dir(Path::new(&local_fs_config.file_path), trustee_home_dir).to_string_lossy().into_owned();
+                }
+            }
 
-            as_config.rvps_config.storage = AttestationServiceConfig::CoCoASBuiltIn(Config {
-                work_dir: replace_base_dir(as_config.work_dir.as_path(), trustee_home_dir),
-                rvps_config: BuiltIn(Config {
-                    storage: LocalFs(Config { file_path: "/opt/confidential-containers/attestation-service/reference_values" })
-                }),
-                attestation_token_broker: Ear(Configuration { duration_min: 5, issuer_name: "CoCo-Attestation-Service", developer_name: "https://confidentialcontainers.org", build_name: "attestation-service 0.1.0", profile_name: "tag:github.com,2024:confidential-containers/Trustee", signer: None, policy_dir: "/opt/confidential-containers/attestation-service/token/ear/policies" }),
-                timeout: 5
-            });
+            // Handle attestation token broker paths
+            if let attestation_service::token::AttestationTokenConfig::Ear(ear_config) = &mut as_config.attestation_token_broker {
+                ear_config.policy_dir = replace_base_dir(Path::new(&ear_config.policy_dir), trustee_home_dir).to_string_lossy().into_owned();
+            }
         }
         _ => {}
-    }
-
-    match config.attestation_service.attestation_token_broker {
-        AttestationTokenBrokerConfig::Ear(mut ear_config) => {
-            ear_config.policy_dir = replace_base_dir(ear_config.policy_dir.as_path(), trustee_home_dir);
-            config.attestation_service.attestation_token_broker = AttestationTokenBrokerConfig::Ear(ear_config);
-        }
-        _ => {} 
     }
 
     if config.admin.auth_public_key.is_none() {
